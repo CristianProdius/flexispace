@@ -1,32 +1,33 @@
+// app/properties/PropertiesClient.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import Container from "../components/Container";
 import Heading from "../components/Heading";
-import { SafeListing, SafeUser } from "../types";
+import { SafeSpace, SafeUser } from "../types";
 import { useCallback, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import SpaceCard from "../components/listings/SpaceCard";
+import SpaceCard from "../components/spaces/SpaceCard";
 
 interface PropertiesClientProps {
-  listings: SafeListing[];
+  spaces: SafeSpace[];
   currentUser?: SafeUser | null;
 }
 
 const PropertiesClient: React.FC<PropertiesClientProps> = ({
-  listings,
+  spaces,
   currentUser,
 }) => {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState("");
 
-  const onCancel = useCallback(
+  const onDelete = useCallback(
     (id: string) => {
       setDeletingId(id);
       axios
-        .delete(`/api/listings/${id}`)
+        .delete(`/api/spaces/${id}`)
         .then(() => {
-          toast.success("Listing deleted");
+          toast.success("Space deleted");
           router.refresh();
         })
         .catch((error) => {
@@ -41,16 +42,16 @@ const PropertiesClient: React.FC<PropertiesClientProps> = ({
 
   return (
     <Container>
-      <Heading title="Properties" subtitle="List of your properties" />
+      <Heading title="My Spaces" subtitle="List of spaces you've created" />
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8">
-        {listings.map((listing: any) => (
+        {spaces.map((space) => (
           <SpaceCard
-            key={listing.id}
-            data={listing}
-            actionId={listing.id}
-            onAction={onCancel}
-            disabled={deletingId === listing.id}
-            actionLabel="Delete prope"
+            key={space.id}
+            data={space}
+            actionId={space.id}
+            onAction={onDelete}
+            disabled={deletingId === space.id}
+            actionLabel="Delete space"
             currentUser={currentUser}
           />
         ))}

@@ -140,7 +140,9 @@ export {
   InvoiceStatus,
 };
 
-// Utility types
+// Backward compatibility types (to be removed after full migration)
+export type SafeListing = SafeSpace;
+export type SafeReservation = SafeBooking;
 export type TimeSlot = {
   start: string; // "09:00"
   end: string; // "17:00"

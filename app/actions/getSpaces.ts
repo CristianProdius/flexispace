@@ -18,7 +18,7 @@ export interface ISpaceParams {
   amenities?: string[];
 }
 
-export default async function getSpaces(params: ISpaceParams) {
+export default async function getSpaces(params: ISpaceParams = {}) {
   try {
     const {
       userId,
@@ -37,7 +37,7 @@ export default async function getSpaces(params: ISpaceParams) {
     } = params;
 
     let query: any = {
-      isActive: true,
+      isActive: true, // Only show active spaces
     };
 
     // Basic filters
@@ -114,15 +114,19 @@ export default async function getSpaces(params: ISpaceParams) {
       where: query,
       include: {
         user: true,
-        pricing: true,
-        businessHours: true,
+        pricing: {
+          where: {
+            pricingType: PricingType.HOURLY, // Get hourly pricing for display
+          },
+        },
+        businessHours: {
+          orderBy: {
+            dayOfWeek: "asc",
+          },
+        },
         reviews: {
           select: {
             rating: true,
-            cleanlinessRating: true,
-            amenitiesRating: true,
-            locationRating: true,
-            valueRating: true,
           },
         },
         _count: {
@@ -135,14 +139,11 @@ export default async function getSpaces(params: ISpaceParams) {
       orderBy: { createdAt: "desc" },
     });
 
-    // Filter by price range if specified
+    // Filter by price range if specified (done after query since price is in related table)
     let filteredSpaces = spaces;
     if (minPrice !== undefined || maxPrice !== undefined) {
       filteredSpaces = spaces.filter((space) => {
-        const hourlyPricing = space.pricing.find(
-          (p) => p.pricingType === PricingType.HOURLY
-        );
-
+        const hourlyPricing = space.pricing[0];
         if (!hourlyPricing) return false;
 
         const price = hourlyPricing.price;
@@ -155,23 +156,15 @@ export default async function getSpaces(params: ISpaceParams) {
 
     // Transform to safe spaces with calculated fields
     const safeSpaces = filteredSpaces.map((space) => {
-      // Calculate average ratings
-      const ratings = space.reviews;
+      // Calculate average rating
       const avgRating =
-        ratings.length > 0
-          ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
-          : null;
-
-      const avgCleanlinessRating =
-        ratings.length > 0
-          ? ratings.reduce((sum, r) => sum + (r.cleanlinessRating || 0), 0) /
-            ratings.filter((r) => r.cleanlinessRating).length
+        space.reviews.length > 0
+          ? space.reviews.reduce((sum, r) => sum + r.rating, 0) /
+            space.reviews.length
           : null;
 
       // Get base price (hourly rate)
-      const basePrice =
-        space.pricing.find((p) => p.pricingType === PricingType.HOURLY)
-          ?.price || 0;
+      const basePrice = space.pricing[0]?.price || 0;
 
       return {
         ...space,
@@ -190,10 +183,9 @@ export default async function getSpaces(params: ISpaceParams) {
         })),
         businessHours: space.businessHours,
         averageRating: avgRating,
-        cleanlinessRating: avgCleanlinessRating,
         reviewCount: space._count.reviews,
         bookingCount: space._count.bookings,
-        basePrice: basePrice,
+        price: basePrice, // Add base price for backward compatibility
       };
     });
 

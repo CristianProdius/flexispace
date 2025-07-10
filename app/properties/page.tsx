@@ -1,8 +1,9 @@
+// app/properties/page.tsx
 import EmptyState from "../components/EmptyState";
 import ClientOnly from "../components/ClientOnly";
 import getCurrentUser from "../actions/getCurrentUser";
 import PropertiesClient from "./PropertiesClient";
-import getListings from "../actions/getListings";
+import getSpaces from "../actions/getSpaces";
 
 const PropertiesPage = async () => {
   const currentUser = await getCurrentUser();
@@ -14,14 +15,15 @@ const PropertiesPage = async () => {
       </ClientOnly>
     );
   }
-  const listings = await getListings({ userId: currentUser.id });
 
-  if (listings.length === 0) {
+  const spaces = await getSpaces({ userId: currentUser.id });
+
+  if (spaces.length === 0) {
     return (
       <ClientOnly>
         <EmptyState
-          title="No properties found"
-          subTitle="Looks like you havn't reserved any space."
+          title="No spaces found"
+          subTitle="Looks like you haven't created any spaces yet."
         />
       </ClientOnly>
     );
@@ -29,7 +31,7 @@ const PropertiesPage = async () => {
 
   return (
     <ClientOnly>
-      <PropertiesClient listings={listings} currentUser={currentUser} />
+      <PropertiesClient spaces={spaces} currentUser={currentUser} />
     </ClientOnly>
   );
 };

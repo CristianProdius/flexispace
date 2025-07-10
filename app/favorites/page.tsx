@@ -1,29 +1,30 @@
+// app/favorites/page.tsx
 import EmptyState from "../components/EmptyState";
 import ClientOnly from "../components/ClientOnly";
 import getCurrentUser from "../actions/getCurrentUser";
-import getFavoriteListings from "../actions/getFavoriteListing";
+import getFavoriteSpaces from "../actions/getFavoriteSpaces";
 import FavoritesClient from "./FavoritesClient";
 
-const ListingPage = async () => {
-   const listings = await getFavoriteListings();
-   const currentUser = await getCurrentUser();
+const FavoritesPage = async () => {
+  const spaces = await getFavoriteSpaces();
+  const currentUser = await getCurrentUser();
 
-   if (listings.length === 0) {
-      return (
-         <ClientOnly>
-            <EmptyState
-               title="No favorites Found"
-               subTitle="Looks like you have no favorite listings."
-            />
-         </ClientOnly>
-      );
-   }
-
-   return (
+  if (spaces.length === 0) {
+    return (
       <ClientOnly>
-         <FavoritesClient listings={listings} currentUser={currentUser} />
+        <EmptyState
+          title="No favorites found"
+          subTitle="Looks like you have no favorite spaces."
+        />
       </ClientOnly>
-   );
+    );
+  }
+
+  return (
+    <ClientOnly>
+      <FavoritesClient spaces={spaces} currentUser={currentUser} />
+    </ClientOnly>
+  );
 };
 
-export default ListingPage;
+export default FavoritesPage;

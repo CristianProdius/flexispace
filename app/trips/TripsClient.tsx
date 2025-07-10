@@ -1,22 +1,20 @@
+// app/trips/TripsClient.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import Container from "../components/Container";
 import Heading from "../components/Heading";
-import { SafeReservation, SafeUser } from "../types";
+import { SafeBooking, SafeUser } from "../types";
 import { useCallback, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import SpaceCard from "../components/listings/SpaceCard";
+import SpaceCard from "../components/spaces/SpaceCard";
 
 interface TripsClientProps {
-  reservations: SafeReservation[];
+  bookings: SafeBooking[];
   currentUser?: SafeUser | null;
 }
 
-const TripsClient: React.FC<TripsClientProps> = ({
-  reservations,
-  currentUser,
-}) => {
+const TripsClient: React.FC<TripsClientProps> = ({ bookings, currentUser }) => {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState("");
 
@@ -24,9 +22,9 @@ const TripsClient: React.FC<TripsClientProps> = ({
     (id: string) => {
       setDeletingId(id);
       axios
-        .delete(`/api/reservations/${id}`)
+        .delete(`/api/bookings/${id}`)
         .then(() => {
-          toast.success("Reservation Caceled");
+          toast.success("Booking cancelled");
           router.refresh();
         })
         .catch((error) => {
@@ -42,22 +40,24 @@ const TripsClient: React.FC<TripsClientProps> = ({
   return (
     <Container>
       <Heading
-        title="Trips"
+        title="My Bookings"
         subtitle="Where you've been and where you're going"
       />
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8">
-        {reservations.map((reservation) => (
-          <SpaceCard
-            key={reservation.id}
-            data={reservation.listing}
-            reservation={reservation}
-            actionId={reservation.id}
-            onAction={onCancel}
-            disabled={deletingId === reservation.id}
-            actionLabel="Cancel Reservation"
-            currentUser={currentUser}
-          />
-        ))}
+        {bookings.map((booking) =>
+          booking.space ? (
+            <SpaceCard
+              key={booking.id}
+              data={booking.space}
+              booking={booking}
+              actionId={booking.id}
+              onAction={onCancel}
+              disabled={deletingId === booking.id}
+              actionLabel="Cancel Booking"
+              currentUser={currentUser}
+            />
+          ) : null
+        )}
       </div>
     </Container>
   );
