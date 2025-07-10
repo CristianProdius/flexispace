@@ -1,52 +1,104 @@
+// app/actions/getBookings.ts
 import prisma from "@/app/libs/prismadb";
+import { BookingStatus } from "@prisma/client";
 
 interface IParams {
-   listingId?: string;
-   userId?: string;
-   authorId?: string;
+  spaceId?: string;
+  userId?: string;
+  providerId?: string; // Space owner ID
+  status?: BookingStatus;
+  includeInvoice?: boolean;
 }
 
-export default async function getReservations(params: IParams) {
-   try {
-      const { listingId, userId, authorId } = params;
+export default async function getBookings(params: IParams) {
+  try {
+    const {
+      spaceId,
+      userId,
+      providerId,
+      status,
+      includeInvoice = false,
+    } = params;
 
-      const query: any = {};
+    const query: any = {};
 
-      if (listingId) {
-         query.listingId = listingId;
-      }
+    if (spaceId) {
+      query.spaceId = spaceId;
+    }
 
-      if (userId) {
-         query.userId = userId;
-      }
+    if (userId) {
+      query.userId = userId;
+    }
 
-      if (authorId) {
-         query.listing = { userId: authorId };
-      }
+    if (providerId) {
+      query.space = { userId: providerId };
+    }
 
-      const reservations = await prisma.reservation.findMany({
-         where: query,
-         include: {
-            listing: true,
-         },
-         orderBy: {
-            createdAt: "desc",
-         },
-      });
+    if (status) {
+      query.status = status;
+    }
 
-      const safeReservations = reservations.map((reservation) => ({
-         ...reservation,
-         createdAt: reservation.createdAt.toISOString(),
-         startDate: reservation.startDate.toISOString(),
-         endDate: reservation.endDate.toISOString(),
-         listing: {
-            ...reservation.listing,
-            createdAt: reservation.listing.createdAt.toISOString(),
-         },
-      }));
+    const bookings = await prisma.booking.findMany({
+      where: query,
+      include: {
+        space: {
+          include: {
+            user: true,
+            pricing: true,
+            businessHours: true,
+          },
+        },
+        user: true,
+        review: includeInvoice ? true : false,
+        invoice: includeInvoice ? true : false,
+      },
+      orderBy: {
+        startDateTime: "desc",
+      },
+    });
 
-      return safeReservations;
-   } catch (error: any) {
-      throw new Error(error);
-   }
+    // Transform to safe bookings
+    const safeBookings = bookings.map((booking) => ({
+      ...booking,
+      createdAt: booking.createdAt.toISOString(),
+      updatedAt: booking.updatedAt.toISOString(),
+      startDateTime: booking.startDateTime.toISOString(),
+      endDateTime: booking.endDateTime.toISOString(),
+      space: {
+        ...booking.space,
+        createdAt: booking.space.createdAt.toISOString(),
+        updatedAt: booking.space.updatedAt.toISOString(),
+        user: {
+          ...booking.space.user,
+          createdAt: booking.space.user.createdAt.toISOString(),
+          updatedAt: booking.space.user.updatedAt.toISOString(),
+          emailVerified:
+            booking.space.user.emailVerified?.toISOString() || null,
+        },
+        pricing: booking.space.pricing.map((p) => ({
+          ...p,
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+        })),
+      },
+      user: {
+        ...booking.user,
+        createdAt: booking.user.createdAt.toISOString(),
+        updatedAt: booking.user.updatedAt.toISOString(),
+        emailVerified: booking.user.emailVerified?.toISOString() || null,
+      },
+      invoice: booking.invoice
+        ? {
+            ...booking.invoice,
+            issuedAt: booking.invoice.issuedAt.toISOString(),
+            dueDate: booking.invoice.dueDate.toISOString(),
+            paidAt: booking.invoice.paidAt?.toISOString() || null,
+          }
+        : null,
+    }));
+
+    return safeBookings;
+  } catch (error: any) {
+    throw new Error(error);
+  }
 }

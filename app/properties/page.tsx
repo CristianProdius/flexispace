@@ -5,33 +5,33 @@ import PropertiesClient from "./PropertiesClient";
 import getListings from "../actions/getListings";
 
 const PropertiesPage = async () => {
-   const currentUser = await getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-   if (!currentUser) {
-      return (
-         <ClientOnly>
-            <EmptyState title="Unauthorized" subTitle="Please Login" />
-         </ClientOnly>
-      );
-   }
-   const listings = await getListings({ userId: currentUser.id });
-
-   if (listings.length === 0) {
-      return (
-         <ClientOnly>
-            <EmptyState
-               title="No properties found"
-               subTitle="Looks like you havn't reserved any property."
-            />
-         </ClientOnly>
-      );
-   }
-
-   return (
+  if (!currentUser) {
+    return (
       <ClientOnly>
-         <PropertiesClient listings={listings} currentUser={currentUser} />
+        <EmptyState title="Unauthorized" subTitle="Please Login" />
       </ClientOnly>
-   );
+    );
+  }
+  const listings = await getListings({ userId: currentUser.id });
+
+  if (listings.length === 0) {
+    return (
+      <ClientOnly>
+        <EmptyState
+          title="No properties found"
+          subTitle="Looks like you havn't reserved any space."
+        />
+      </ClientOnly>
+    );
+  }
+
+  return (
+    <ClientOnly>
+      <PropertiesClient listings={listings} currentUser={currentUser} />
+    </ClientOnly>
+  );
 };
 
 export default PropertiesPage;

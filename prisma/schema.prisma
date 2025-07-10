@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file for FlexiSpace
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -11,19 +11,26 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String?
-  email           String?  @unique
+  email           String?   @unique
   emailVerified   DateTime?
   image           String?
   hashedPassword  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   favoriteIds     String[]
-
-  accounts     Account[]
-  listings     Listing[]
-  reservations Reservation[]
+  
+  // User type: individual or business
+  userType        UserType  @default(INDIVIDUAL)
+  companyName     String?
+  companyWebsite  String?
+  phoneNumber     String?
+  
+  accounts        Account[]
+  spaces          Space[]
+  bookings        Booking[]
+  reviews         Review[]
 }
 
 model Account {
@@ -45,33 +52,253 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Listing {
-  id            String   @id @default(uuid())
-  title         String
-  description   String   @db.Text
-  imageSrc      String
-  createdAt     DateTime @default(now())
-  category      String
-  roomCount     Int
-  bathroomCount Int
-  guestCount    Int
-  locationValue String
-  userId        String
-  price         Int
-
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reservations Reservation[]
+model Space {
+  id                String           @id @default(uuid())
+  title             String
+  description       String           @db.Text
+  imageSrc          String
+  images            String[]         // Additional images
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  // Space type and category
+  spaceType         SpaceType
+  category          String
+  
+  // Location
+  locationValue     String
+  address           String
+  city              String
+  state             String?
+  postalCode        String?
+  country           String
+  latitude          Float?
+  longitude         Float?
+  
+  // Capacity and dimensions
+  capacity          Int              // Maximum number of people
+  minCapacity       Int              @default(1)
+  squareFootage     Int?             // Size in square feet
+  ceilingHeight     Float?           // Height in feet
+  
+  // Owner
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Features
+  amenities         String[]         // Array of amenity IDs
+  equipment         String[]         // Array of equipment IDs
+  
+  // Availability
+  businessHours     BusinessHour[]
+  instantBooking    Boolean          @default(false)
+  requiresApproval  Boolean          @default(false)
+  minBookingHours   Int              @default(1)
+  maxBookingHours   Int?
+  
+  // Policies
+  cancellationPolicy CancellationPolicy @default(MODERATE)
+  rules             String[]
+  
+  // Status
+  isActive          Boolean          @default(true)
+  verified          Boolean          @default(false)
+  
+  // Relations
+  bookings          Booking[]
+  pricing           PricingTier[]
+  reviews           Review[]
+  blockedDates      BlockedDate[]
 }
 
-model Reservation {
-  id         String   @id @default(uuid())
-  userId     String
-  listingId  String
-  startDate  DateTime
-  endDate    DateTime
-  totalPrice Int
-  createdAt  DateTime @default(now())
+model PricingTier {
+  id              String        @id @default(uuid())
+  spaceId         String
+  space           Space         @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  
+  // Pricing type
+  pricingType     PricingType
+  price           Float
+  currency        String        @default("USD")
+  
+  // Peak pricing
+  isPeakPrice     Boolean       @default(false)
+  peakDays        String[]      // Array of weekdays (e.g., ["FRIDAY", "SATURDAY"])
+  peakHours       String?       // JSON string of peak hours
+  
+  // Additional fees
+  cleaningFee     Float?
+  serviceFee      Float?
+  overtimeFee     Float?        // Per hour overtime charge
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+model BusinessHour {
+  id              String    @id @default(uuid())
+  spaceId         String
+  space           Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek       DayOfWeek
+  openTime        String    // Format: "09:00"
+  closeTime       String    // Format: "18:00"
+  isClosed        Boolean   @default(false)
+}
+
+model Booking {
+  id              String         @id @default(uuid())
+  userId          String
+  spaceId         String
+  
+  // Booking time
+  startDateTime   DateTime
+  endDateTime     DateTime
+  totalHours      Float
+  
+  // Attendees/Occupants
+  attendeeCount   Int
+  eventType       String?        // Type of event/meeting
+  companyName     String?
+  
+  // Pricing
+  hourlyRate      Float
+  totalPrice      Float
+  pricingType     PricingType
+  
+  // Additional services
+  addons          String[]       // Array of addon IDs
+  specialRequests String?        @db.Text
+  
+  // Status
+  status          BookingStatus  @default(PENDING)
+  paymentStatus   PaymentStatus  @default(PENDING)
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relations
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space           Space          @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  review          Review?
+  invoice         Invoice?
+}
+
+model Review {
+  id              String    @id @default(uuid())
+  userId          String
+  spaceId         String
+  bookingId       String    @unique
+  
+  rating          Int       // 1-5 stars
+  comment         String    @db.Text
+  
+  // Specific ratings
+  cleanlinessRating    Int?
+  amenitiesRating      Int?
+  locationRating       Int?
+  valueRating          Int?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space           Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  booking         Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model BlockedDate {
+  id              String    @id @default(uuid())
+  spaceId         String
+  space           Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  
+  startDateTime   DateTime
+  endDateTime     DateTime
+  reason          String?
+  
+  createdAt       DateTime  @default(now())
+}
+
+model Invoice {
+  id              String          @id @default(uuid())
+  invoiceNumber   String          @unique
+  bookingId       String          @unique
+  booking         Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  // Billing details
+  billingName     String
+  billingEmail    String
+  billingAddress  String?
+  taxId           String?
+  
+  // Payment details
+  subtotal        Float
+  taxes           Float
+  total           Float
+  
+  status          InvoiceStatus   @default(DRAFT)
+  issuedAt        DateTime        @default(now())
+  dueDate         DateTime
+  paidAt          DateTime?
+}
+
+// Enums
+enum UserType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum SpaceType {
+  WORKSPACE
+  EVENT_VENUE
+}
+
+enum PricingType {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  EVENT_PACKAGE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum CancellationPolicy {
+  FLEXIBLE     // Full refund up to 24 hours before
+  MODERATE     // Full refund up to 48 hours before
+  STRICT       // 50% refund up to 1 week before
+  SUPER_STRICT // No refund
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
 }

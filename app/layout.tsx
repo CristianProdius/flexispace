@@ -13,29 +13,34 @@ import SearchModal from "./components/modals/SearchModal";
 
 // const inter = Inter({ subsets: ["latin"] });
 const nunito = Nunito({
-   subsets: ["latin"],
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-   title: "AirBnb",
-   description: "Airbnb Clone",
+  title: "FlexiSpace - Book Flexible Workspaces & Event Venues",
+  description:
+    "Find and book professional workspaces, meeting rooms, and event venues by the hour, day, or month.",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-   const currentUser = await getCurrentUser();
-   return (
-      <html lang="en">
-         <body className={nunito.className}>
-            <ClientOnly>
-               <ToasterProvider />
-               <SearchModal />
-               <RentModal />
-               <LoginModal />
-               <RegisterModal />
-               <Navbar currentUser={currentUser} />
-            </ClientOnly>
-            <div className="pb-20 pt-28">{children}</div>
-         </body>
-      </html>
-   );
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const currentUser = await getCurrentUser();
+  return (
+    <html lang="en">
+      <body className={nunito.className}>
+        <ClientOnly>
+          <ToasterProvider />
+          <SearchModal />
+          <RentModal />
+          <LoginModal />
+          <RegisterModal />
+          <Navbar currentUser={currentUser} />
+        </ClientOnly>
+        <div className="pb-20 pt-28">{children}</div>
+      </body>
+    </html>
+  );
 }

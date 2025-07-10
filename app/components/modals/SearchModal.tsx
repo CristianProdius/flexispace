@@ -16,174 +16,183 @@ import CountrySelect, { CountrySelectValue } from "../inputs/CountrySelect";
 import Heading from "../Heading";
 
 enum STEPS {
-   LOCATION = 0,
-   DATE = 1,
-   INFO = 2,
+  LOCATION = 0,
+  DATE = 1,
+  INFO = 2,
 }
 
 const SearchModal = () => {
-   const router = useRouter();
-   const searchModal = useSearchModal();
-   const params = useSearchParams();
+  const router = useRouter();
+  const searchModal = useSearchModal();
+  const params = useSearchParams();
 
-   const [step, setStep] = useState(STEPS.LOCATION);
+  const [step, setStep] = useState(STEPS.LOCATION);
 
-   const [location, setLocation] = useState<CountrySelectValue>();
-   const [guestCount, setGuestCount] = useState(1);
-   const [roomCount, setRoomCount] = useState(1);
-   const [bathroomCount, setBathroomCount] = useState(1);
-   const [dateRange, setDateRange] = useState<Range>({
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-   });
+  const [location, setLocation] = useState<CountrySelectValue>();
+  const [attendeeCount, setattendeeCount] = useState(1);
+  const [roomCount, setRoomCount] = useState(1);
+  const [bathroomCount, setBathroomCount] = useState(1);
+  const [dateRange, setDateRange] = useState<Range>({
+    startDate: new Date(),
+    endDate: new Date(),
+    key: "selection",
+  });
 
-   const Map = useMemo(
-      () =>
-         dynamic(() => import("../Map"), {
-            ssr: false,
-         }),
-      []
-   );
+  const Map = useMemo(
+    () =>
+      dynamic(() => import("../Map"), {
+        ssr: false,
+      }),
+    []
+  );
 
-   const onBack = useCallback(() => {
-      setStep((value) => value - 1);
-   }, []);
+  const onBack = useCallback(() => {
+    setStep((value) => value - 1);
+  }, []);
 
-   const onNext = useCallback(() => {
-      setStep((value) => value + 1);
-   }, []);
+  const onNext = useCallback(() => {
+    setStep((value) => value + 1);
+  }, []);
 
-   const onSubmit = useCallback(async () => {
-      if (step !== STEPS.INFO) {
-         return onNext();
-      }
+  const onSubmit = useCallback(async () => {
+    if (step !== STEPS.INFO) {
+      return onNext();
+    }
 
-      let currentQuery = {};
+    let currentQuery = {};
 
-      if (params) {
-         currentQuery = qs.parse(params.toString());
-      }
+    if (params) {
+      currentQuery = qs.parse(params.toString());
+    }
 
-      const updatedQuery: any = {
-         ...currentQuery,
-         locationValue: location?.value,
-         guestCount,
-         roomCount,
-         bathroomCount,
-      };
-
-      if (dateRange.startDate) {
-         updatedQuery.startDate = formatISO(dateRange.startDate);
-      }
-
-      if (dateRange.endDate) {
-         updatedQuery.endDate = formatISO(dateRange.endDate);
-      }
-
-      const url = qs.stringifyUrl(
-         {
-            url: "/",
-            query: updatedQuery,
-         },
-         { skipNull: true }
-      );
-
-      setStep(STEPS.LOCATION);
-      searchModal.onClose();
-      router.push(url);
-   }, [
-      step,
-      searchModal,
-      location,
-      router,
-      guestCount,
+    const updatedQuery: any = {
+      ...currentQuery,
+      locationValue: location?.value,
+      attendeeCount,
       roomCount,
-      dateRange,
-      onNext,
       bathroomCount,
-      params,
-   ]);
+    };
 
-   const actionLabel = useMemo(() => {
-      if (step === STEPS.INFO) {
-         return "Search";
-      }
+    if (dateRange.startDate) {
+      updatedQuery.startDate = formatISO(dateRange.startDate);
+    }
 
-      return "Next";
-   }, [step]);
+    if (dateRange.endDate) {
+      updatedQuery.endDate = formatISO(dateRange.endDate);
+    }
 
-   const secondaryActionLabel = useMemo(() => {
-      if (step === STEPS.LOCATION) {
-         return undefined;
-      }
+    const url = qs.stringifyUrl(
+      {
+        url: "/",
+        query: updatedQuery,
+      },
+      { skipNull: true }
+    );
 
-      return "Back";
-   }, [step]);
+    setStep(STEPS.LOCATION);
+    searchModal.onClose();
+    router.push(url);
+  }, [
+    step,
+    searchModal,
+    location,
+    router,
+    attendeeCount,
+    roomCount,
+    dateRange,
+    onNext,
+    bathroomCount,
+    params,
+  ]);
 
-   let bodyContent = (
-      <div className="flex flex-col gap-8">
-         <Heading title="Where do you wanna go?" subtitle="Find the perfect location!" />
-         <CountrySelect
-            value={location}
-            onChange={(value) => setLocation(value as CountrySelectValue)}
-         />
-         <hr />
-         <Map center={location?.latlng} />
-      </div>
-   );
+  const actionLabel = useMemo(() => {
+    if (step === STEPS.INFO) {
+      return "Search";
+    }
 
-   if (step === STEPS.DATE) {
-      bodyContent = (
-         <div className="flex flex-col gap-8">
-            <Heading title="When do you plan to go?" subtitle="Make sure everyone is free!" />
-            <Calendar onChange={(value) => setDateRange(value.selection)} value={dateRange} />
-         </div>
-      );
-   }
+    return "Next";
+  }, [step]);
 
-   if (step === STEPS.INFO) {
-      bodyContent = (
-         <div className="flex flex-col gap-8">
-            <Heading title="More information" subtitle="Find your perfect place!" />
-            <Counter
-               onChange={(value) => setGuestCount(value)}
-               value={guestCount}
-               title="Guests"
-               subTitle="How many guests are coming?"
-            />
-            <hr />
-            <Counter
-               onChange={(value) => setRoomCount(value)}
-               value={roomCount}
-               title="Rooms"
-               subTitle="How many rooms do you need?"
-            />
-            <hr />
-            <Counter
-               onChange={(value) => {
-                  setBathroomCount(value);
-               }}
-               value={bathroomCount}
-               title="Bathrooms"
-               subTitle="How many bahtrooms do you need?"
-            />
-         </div>
-      );
-   }
+  const secondaryActionLabel = useMemo(() => {
+    if (step === STEPS.LOCATION) {
+      return undefined;
+    }
 
-   return (
-      <Modal
-         isOpen={searchModal.isOpen}
-         title="Filters"
-         actionLabel={actionLabel}
-         onSubmit={onSubmit}
-         secondaryActionLabel={secondaryActionLabel}
-         secondaryAction={step === STEPS.LOCATION ? undefined : onBack}
-         onClose={searchModal.onClose}
-         body={bodyContent}
+    return "Back";
+  }, [step]);
+
+  let bodyContent = (
+    <div className="flex flex-col gap-8">
+      <Heading
+        title="Where do you wanna go?"
+        subtitle="Find the perfect location!"
       />
-   );
+      <CountrySelect
+        value={location}
+        onChange={(value) => setLocation(value as CountrySelectValue)}
+      />
+      <hr />
+      <Map center={location?.latlng} />
+    </div>
+  );
+
+  if (step === STEPS.DATE) {
+    bodyContent = (
+      <div className="flex flex-col gap-8">
+        <Heading
+          title="When do you plan to go?"
+          subtitle="Make sure everyone is free!"
+        />
+        <Calendar
+          onChange={(value) => setDateRange(value.selection)}
+          value={dateRange}
+        />
+      </div>
+    );
+  }
+
+  if (step === STEPS.INFO) {
+    bodyContent = (
+      <div className="flex flex-col gap-8">
+        <Heading title="More information" subtitle="Find your perfect place!" />
+        <Counter
+          onChange={(value) => setattendeeCount(value)}
+          value={attendeeCount}
+          title="attendees"
+          subTitle="How many attendees are coming?"
+        />
+        <hr />
+        <Counter
+          onChange={(value) => setRoomCount(value)}
+          value={roomCount}
+          title="Rooms"
+          subTitle="How many rooms do you need?"
+        />
+        <hr />
+        <Counter
+          onChange={(value) => {
+            setBathroomCount(value);
+          }}
+          value={bathroomCount}
+          title="Bathrooms"
+          subTitle="How many bahtrooms do you need?"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Modal
+      isOpen={searchModal.isOpen}
+      title="Filters"
+      actionLabel={actionLabel}
+      onSubmit={onSubmit}
+      secondaryActionLabel={secondaryActionLabel}
+      secondaryAction={step === STEPS.LOCATION ? undefined : onBack}
+      onClose={searchModal.onClose}
+      body={bodyContent}
+    />
+  );
 };
 
 export default SearchModal;
