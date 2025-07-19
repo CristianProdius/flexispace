@@ -37,7 +37,7 @@ const SpaceHead: React.FC<SpaceHeadProps> = ({
           className="object-cover w-full"
         />
         <div className="absolute top-5 right-5">
-          <HeartButton listingId={id} currentUser={currentUser} />
+          <HeartButton spaceId={id} currentUser={currentUser} />
         </div>
       </div>
     </>

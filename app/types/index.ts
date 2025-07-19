@@ -31,6 +31,8 @@ export type SafeBooking = Omit<
   startDateTime: string;
   endDateTime: string;
   space?: SafeSpace;
+  invoice?: SafeInvoice | undefined;
+  review?: SafeReview | null;
 };
 
 export type SafeUser = Omit<

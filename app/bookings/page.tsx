@@ -10,7 +10,7 @@ const BookingsPage = async () => {
   if (!currentUser) {
     return (
       <ClientOnly>
-        <EmptyState title="Unauthorized" subtitle="Please login" />
+        <EmptyState title="Unauthorized" subTitle="Please login" />
       </ClientOnly>
     );
   }
@@ -22,15 +22,21 @@ const BookingsPage = async () => {
       <ClientOnly>
         <EmptyState
           title="No bookings found"
-          subtitle="Looks like you haven't booked any spaces yet."
+          subTitle="Looks like you haven't booked any spaces yet."
         />
       </ClientOnly>
     );
   }
 
+  // Map bookings to ensure invoice is undefined instead of null
+  const safeBookings = bookings.map((booking: any) => ({
+    ...booking,
+    invoice: booking.invoice === null ? undefined : booking.invoice,
+  }));
+
   return (
     <ClientOnly>
-      <BookingsClient bookings={bookings} currentUser={currentUser} />
+      <BookingsClient bookings={safeBookings} currentUser={currentUser} />
     </ClientOnly>
   );
 };

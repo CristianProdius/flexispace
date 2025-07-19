@@ -7,7 +7,7 @@ import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
-import useRentModal from "@/app/hooks/useCreateSpaceModal";
+import useRentModal from "@/app/hooks/useRentModal";
 import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
@@ -42,7 +42,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
           onClick={onRent}
           className="hidden md:block text-sm font-semibold py-3 px-4 rounded-full hover:bg-neutral-100 transition cursor-pointer"
         >
-          Airbnb your home
+          FlexiSpace your space
         </div>
         <div
           onClick={toogleOpen}

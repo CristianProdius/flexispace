@@ -211,10 +211,7 @@ const SpaceClient: React.FC<SpaceClientProps> = ({
           <SpaceHead
             title={space.title}
             imageSrc={space.imageSrc}
-            images={space.images}
             locationValue={space.locationValue}
-            address={space.address}
-            city={space.city}
             id={space.id}
             currentUser={currentUser}
           />

@@ -169,11 +169,13 @@ const BookingsClient: React.FC<BookingsClientProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8">
             {statusBookings.map((booking) => (
               <div key={booking.id} className="col-span-1">
-                <SpaceCard
-                  data={booking.space}
-                  disabled={processingId === booking.id}
-                  currentUser={currentUser}
-                />
+                {booking.space && (
+                  <SpaceCard
+                    data={booking.space}
+                    disabled={processingId === booking.id}
+                    currentUser={currentUser}
+                  />
+                )}
                 <div className="mt-2 p-4 border rounded-lg">
                   {getStatusBadge(booking.status)}
                   <div className="mt-2">{getBookingInfo(booking)}</div>
@@ -213,6 +215,7 @@ const BookingsClient: React.FC<BookingsClientProps> = ({
                     {booking.invoice && (
                       <button
                         onClick={() =>
+                          booking.invoice &&
                           router.push(`/invoices/${booking.invoice.id}`)
                         }
                         className="w-full py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50"
