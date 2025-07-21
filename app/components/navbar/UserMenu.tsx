@@ -1,7 +1,7 @@
 "use client";
 import { AiOutlineMenu } from "@react-icons/all-files/ai/AiOutlineMenu";
 import Avatar from "../Avatar";
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import MenuItem from "./MenuItem";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
@@ -9,9 +9,11 @@ import { signOut } from "next-auth/react";
 import { SafeUser } from "@/app/types";
 import useRentModal from "@/app/hooks/useRentModal";
 import { useRouter } from "next/navigation";
+import PendingBookingsBadge from "./PendingBookingsBadge";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
+  label: string | ReactNode;
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
@@ -63,6 +65,24 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
                   onClick={() => router.push("/bookings")}
                   label="My Bookings"
                 />
+
+                <MenuItem
+                  onClick={() => {
+                    toogleOpen();
+                    router.push("/dashboard/bookings");
+                  }}
+                  label={
+                    <div className="flex items-center justify-between w-full">
+                      <span>Manage Bookings</span>
+                      {currentUser && (
+                        <div className="relative">
+                          <PendingBookingsBadge userId={currentUser.id} />
+                        </div>
+                      )}
+                    </div>
+                  }
+                />
+
                 <MenuItem
                   onClick={() => router.push("/invoices")}
                   label="Invoices"

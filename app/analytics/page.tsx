@@ -11,12 +11,12 @@ import {
   eachDayOfInterval,
   isSameDay,
 } from "date-fns";
-import { FaChartLine } from "@react-icons/all-files/fa/FaChartLine";
+
 import { FaDollarSign } from "@react-icons/all-files/fa/FaDollarSign";
-import { FaUsers } from "@react-icons/all-files/fa/FaUsers";
+
 import { FaCalendarCheck } from "@react-icons/all-files/fa/FaCalendarCheck";
 import { FaStar } from "@react-icons/all-files/fa/FaStar";
-import { FaClock } from "@react-icons/all-files/fa/FaClock";
+
 import { FaPercentage } from "@react-icons/all-files/fa/FaPercentage";
 import { FaArrowUp } from "@react-icons/all-files/fa/FaArrowUp";
 import { FaArrowDown } from "@react-icons/all-files/fa/FaArrowDown";
@@ -34,7 +34,6 @@ type TimeFrame = "week" | "month" | "year" | "all";
 
 const SpaceAnalyticsDashboard: React.FC<SpaceAnalyticsDashboardProps> = ({
   spaces,
-  dateRange,
 }) => {
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<TimeFrame>("month");
