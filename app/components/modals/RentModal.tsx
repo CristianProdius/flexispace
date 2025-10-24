@@ -142,9 +142,6 @@ const RentModal = () => {
 
   // Helper function to determine space type from category
   const getSpaceTypeFromCategory = (category: string): string => {
-    // Log to help debug the correct enum values
-    console.log("Category selected:", category);
-
     // Map categories to either WORKSPACE or EVENT_VENUE
     const workspaceCategories = [
       "Private Office",
@@ -173,7 +170,6 @@ const RentModal = () => {
       spaceType = SPACE_TYPES.EVENT_VENUE;
     }
 
-    console.log("Space type mapped to:", spaceType);
     return spaceType;
   };
 
@@ -254,8 +250,6 @@ const RentModal = () => {
       pricing: pricing,
       businessHours: businessHours,
     };
-
-    console.log("Submitting space data:", spaceData);
 
     axios
       .post("/api/spaces", spaceData)

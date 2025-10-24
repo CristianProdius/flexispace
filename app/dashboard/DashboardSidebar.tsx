@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import { SafeUser } from "@/app/types";
 import {
   CalendarIcon,
@@ -67,10 +68,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ currentUser }) => {
       <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
         <div className="flex items-center">
           <div>
-            <img
+            <Image
               className="inline-block h-9 w-9 rounded-full"
               src={currentUser.image || "/images/placeholder.jpg"}
               alt=""
+              width={36}
+              height={36}
             />
           </div>
           <div className="ml-3">

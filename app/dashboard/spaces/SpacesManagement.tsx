@@ -3,6 +3,7 @@
 import { SafeSpace, SafeUser } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { format } from "date-fns";
@@ -140,10 +141,12 @@ const SpacesManagement: React.FC<SpacesManagementProps> = ({
                 <div className="flex items-start gap-6">
                   {/* Space Image */}
                   <div className="flex-shrink-0">
-                    <img
+                    <Image
                       src={space.imageSrc}
                       alt={space.title}
                       className="w-32 h-32 object-cover rounded-lg"
+                      width={128}
+                      height={128}
                     />
                   </div>
 

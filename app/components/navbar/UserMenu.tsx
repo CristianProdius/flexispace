@@ -13,7 +13,6 @@ import PendingBookingsBadge from "./PendingBookingsBadge";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
-  label: string | ReactNode;
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
@@ -24,7 +23,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
   const rentModal = useRentModal();
   const router = useRouter();
 
-  const toogleOpen = useCallback(() => {
+  const toggleOpen = useCallback(() => {
     setIsOpen((value) => !value);
   }, []);
 
@@ -47,7 +46,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
           FlexiSpace your space
         </div>
         <div
-          onClick={toogleOpen}
+          onClick={toggleOpen}
           className="p-4 md:py-1 md:px-2 border-[1px] border-neutral-200 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
         >
           <AiOutlineMenu />
@@ -68,7 +67,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
 
                 <MenuItem
                   onClick={() => {
-                    toogleOpen();
+                    toggleOpen();
                     router.push("/dashboard/bookings");
                   }}
                   label={
