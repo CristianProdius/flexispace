@@ -3,6 +3,9 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import { BookingStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     const currentUser = await getCurrentUser();

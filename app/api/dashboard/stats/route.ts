@@ -4,6 +4,9 @@ import prisma from "@/app/libs/prismadb";
 import { BookingStatus, PaymentStatus } from "@prisma/client";
 import { startOfMonth, endOfMonth } from "date-fns";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     const currentUser = await getCurrentUser();

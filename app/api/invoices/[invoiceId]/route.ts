@@ -4,6 +4,9 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import { InvoiceStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 interface IParams {
   invoiceId: string;
 }

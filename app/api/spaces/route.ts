@@ -4,6 +4,9 @@ import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import { SpaceType, PricingType, DayOfWeek } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
 

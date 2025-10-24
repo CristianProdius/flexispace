@@ -3,6 +3,9 @@ import getCurrentUser from "@/app/actions/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import { BookingStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 interface IParams {
   bookingId: string;
 }
